@@ -121,14 +121,18 @@ func main() {
 				pb.SetValue(0)
 				pb.SetMarqueeMode(true)
 
-				cmd := exec.Command("./vectrace", args...)
+
+
 				go func() {
+					cmd := exec.Command("./vectrace", args...)
+					hideConsoleWindow(cmd)
 					_ = cmd.Run() // コマンドの終了を待機
 					mw.Synchronize(func() {
 						pb.SetMarqueeMode(false)
 						pb.SetValue(100)
 					})
 				}()
+
 			}
 		},
 

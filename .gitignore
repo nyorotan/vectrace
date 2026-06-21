@@ -24,3 +24,5 @@ Desktop.ini
 
 # Go固有
 vendor/
+go.work
+go.work.sum

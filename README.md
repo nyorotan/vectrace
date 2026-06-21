@@ -12,12 +12,12 @@ Processing is accelerated by multi-threading the trace operation for each color 
 
 ## Supported Input Formats (Restrictions)
 
-To maintain processing efficiency and color separation accuracy, input images are subject to the following restrictions. **Full-color (24-bit/32-bit) images cannot be loaded directly.** Please reduce the number of colors (convert to indexed color) using an image editor beforehand.
+To maintain processing efficiency and color separation accuracy, input images are subject to the following restrictions. **Full-color (24-bit/32-bit) images cannot be loaded directly.** Please reduce the number of colors (convert to indexed color) using an image editor beforehand. In particular, when using color output (`-C`), the input must be in palette (indexed color) format.
 
 - **BMP**: 1-bit / 4-bit / 8-bit (indexed color or grayscale)
 - **PNG**: Indexed color (palette format) or grayscale with 8-bit or fewer
 
-Note: An error will occur if the number of unique colors used internally exceeds 256.
+Note: If the palette (unique color count) exceeds 256, processing will abort with an error.
 
 
 
@@ -42,7 +42,7 @@ Algorithm options:
 | -a, --alphamax float     | Threshold for controlling corner smoothness (default 1)                                       |
 | -n, --no-opticurve       | Disable curve optimization                                                     |
 | -O, --opttolerance float | Tolerance for curve optimization (default 0.2)                                       |
-| -o, --output string      | Output file path (only valid for a single input source)                                        |
+| -o, --output string      | Output file path (only valid for a single input source; cannot be used with multiple input files)                                        |
 | -t, --turdsize int       | Remove noise (speckles) smaller than the specified pixel count (default 2)                           |
 | -z, --turnpolicy int     | Policy for resolving path decomposition ambiguities<br>(0:black, 1:white, 2:left, 3:right, 4:minority, 5:majority, 6:random) |
 | -k, --blacklevel float   | Binarization threshold for the image (default 0.5)                                          |
@@ -59,17 +59,18 @@ Modified and added options:
 
 - force-black creates a black outline layer by extracting dark areas from the image based on the "-k (threshold) flag" to prevent unintended gaps or white lines between adjacent colors. Normally, the layer is created using the average color of the extracted region.
 
-- color splits a color image into multiple layers and traces each one. When this flag is set, a color SVG is output. Since the number of layers increases with the number of colors, images with many colors will significantly increase the file size and conversion time. (This is why the color count is limited to 256 or fewer.)
+- color splits a color image into multiple layers and traces each one. When this flag is set, a color SVG is output. Input is expected to be in palette (indexed color) format. Since the number of layers increases with the number of colors, images with many colors will significantly increase the file size and conversion time. (This is why the color count is limited to 256 or fewer.)
 
 
 
 ## Vectrace-gui
 
-A Windows-only GUI frontend.
-After launching, you can process supported images by drag & drop.
+This is a simple GUI front end for Windows and Linux.  
+After launching, you can process supported images by drag & drop.  
 Option flags can also be specified by entering them in the text box. (The "-C" flag is required for color output.)
 
-Note: `vectrace.exe` must be located in the same directory as `vectrace-gui.exe` to run. Additionally, the GUI checks file headers and ignores unsupported formats (such as full-color images).
+Note: `vectrace` must be located in the same directory as `vectrace-gui` to run.  
+Additionally, the GUI checks file headers and ignores unsupported formats (such as full-color images).
 
 
 
@@ -77,11 +78,11 @@ Note: `vectrace.exe` must be located in the same directory as `vectrace-gui.exe`
 
 **Original Image**
 
-![Original](https://github.com/nyorotan/vectrace/raijin-zu.bmp)
+![Original](./raijin-zu.bmp)
 
 **SVG Image**
 
-![Vectorized](https://github.com/nyorotan/vectrace//raijin-zu.svg)
+![Vectorized](./raijin-zu.svg)
 
 
 
@@ -103,11 +104,41 @@ Convert multiple images to color SVGs at once:
 vectrace -C ./testdata/test1.png ./testdata/test2.png ...
 ```
 
+### Help output example
+
+You can display a brief help output with `vectrace --help`. Example (excerpt):
+
+```
+Usage: vectrace [options] <input files>
+
+Options:
+	-h, --help           Display help message
+	-v, --version        Display version information
+	-C, --color          Color output (input must be palette/indexed color)
+	-o, --output <file>  Output file (only valid for a single input source)
+```
+
+### Troubleshooting (common issues and fixes)
+
+- Too many palette colors (more than 256)
+	- Symptom: Processing aborts or an error is displayed.
+	- Fix: Reduce the number of colors to 256 or fewer (use an image editor or tools like `pngquant`).
+
+- Providing a full-color image
+	- Symptom: The input may be ignored or color separation does not behave as expected.
+	- Fix: Convert the image to palette (indexed color) format before processing.
+
+- Using `-o` with multiple input files
+	- Symptom: `-o` is not applicable to multiple inputs.
+	- Fix: Omit `-o` when processing multiple files and generate outputs per input instead.
+
+
 
 
 ## Build Instructions
 
-Vectrace is written in pure Go and does not require CGO or gcc.
+Vectrace is written in pure Go and does not require CGO or gcc.  
+ The Windows version of `vectrace-gui` is written in `lxn/walk` and, like the others, does not require `CGO` or `GCC`, etc.
 
 ### Windows
 
@@ -117,8 +148,8 @@ Build `vectrace.exe` and `vectrace-gui.exe`:
 set CGO_ENABLED=0
 set GOOS=windows
 set GOARCH=amd64
-go build -trimpath -ldflags="-s -w" -o vectrace ./cmd/vectrace/.
-go build -trimpath -ldflags="-H windowsgui -s -w" -o vectrace-gui.exe ./cmd/vectrace-gui/.
+go build -trimpath -ldflags="-s -w" -o vectrace.exe ./cmd/vectrace/
+go build -trimpath -ldflags="-H windowsgui -s -w" -o vectrace-gui_win.exe ./vectrace-gui/windows/
 ```
 Alternatively, use the provided batch file:
 ```batch
@@ -127,7 +158,7 @@ build_windows.bat
 
 ### Linux
 
-Build `vectrace` only. (`vectrace-gui` is Windows-only.)
+Build `vectrace` only. 
 
 ```
 export CGO_ENABLED=0
@@ -140,6 +171,47 @@ Alternatively, use the provided shell script:
 chmod +x build_linux.sh
 ./build_linux.sh
 ```
+
+The `vectrace-gui` for Linux is written in `fyne.io/fyne`.
+Building this requires `CGO`, `GCC`, and other tools, so you’ll need to set up your build environment. When building the GUI, confirm the Go version, `CGO` settings, and native libraries are available; consult `go.mod` for dependency details.
+
+For Ubuntu/Debian-based systems:
+```bash
+sudo apt update
+sudo apt install build-essential libgl1-mesa-dev libx11-dev xorg-dev
+```
+For Fedora / RHEL:
+```bash
+sudo dnf groupinstall "Development Tools"
+sudo dnf install libGL-devel libX11-devel
+```
+For Arch Linux:
+```bash
+sudo pacman -S base-devel libx11 libxcursor libxrandr libxinerama libxi libxxf86vm alsa-lib pkgconf
+```
+
+Application Build
+```bash
+export CGO_ENABLED=1
+export GOOS=linux
+export GOARCH=amd64
+go build -trimpath -ldflags="-s -w" -o vectrace-gui_linux ./vectrace-gui/linux/
+```
+
+
+In addition, since `fyne.io/fyne` supports cross-compilation, you can build a Windows version using `MinGW-W64` or similar tools.
+
+Example: Using `MinGW-W64` on Windows
+```
+set CGO_ENABLED=1
+set GOOS=windows
+set GOARCH=amd64
+set CXX=x86_64-w64-mingw32-g++
+set CC=x86_64-w64-mingw32-gcc
+go build -trimpath -ldflags="-H windowsgui -s -w" -o vectrace-gui_win.exe ./vectrace-gui/linux/
+```
+
+
 ## License and Trademarks
  
 - License: This project is released under the GNU General Public License v2.0 or later, inheriting the license of the original Potrace. This is a copyleft license; any derivative works of Vectrace must also be released under the same license terms, ensuring the source code remains available and the freedom to modify is preserved for all users.
