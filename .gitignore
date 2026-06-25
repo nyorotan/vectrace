@@ -16,6 +16,7 @@
 *.swp
 *.swo
 *~
+*.bak
 
 # OS生成ファイル
 .DS_Store

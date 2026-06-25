@@ -1,4 +1,4 @@
-🌐 [English](README.md)|**日本語**
+🌐 [English](./README.md)|**日本語**
 
 # Vectrace
 
@@ -38,7 +38,7 @@ Vectrace は Peter Selinger氏 の開発されたベクトル化ライブラリ 
 | -a, --alphamax float     | 角の丸みを制御するしきい値 (default 1)                                                         |
 | -n, --no-opticurve       | 曲線最適化を無効化する                                                                         |
 | -O, --opttolerance float | 曲線最適化時の許容誤差 (default 0.2)                                                           |
-| -o, --output string      | 出力ファイルパス（単一入力ソースの場合のみ有効。複数入力時は使用できません）                                               |
+| -o, --output string      | 出力ファイルパス（単一入力ソースの場合のみ有効。複数入力時は使用できません）                   |
 | -t, --turdsize int       | 指定したピクセル数以下のノイズ（スペックル）を除去 (default 2)                                 |
 | -z, --turnpolicy int     | パス分解時の分岐方向の決定ポリシー<br>(0:黒, 1:白, 2:左, 3:右, 4:少数派, 5:多数派, 6:ランダム) |
 | -k, --blacklevel float   | 画像の2値化閾値 (default 0.5)                                                                  |
@@ -69,11 +69,11 @@ WindowsとLinux向けの簡易的なGUIフロントエンドです。
 
 **オリジナル画像**
 
-![Original](./raijin-zu.bmp)
+![Original](./huujin-zu.bmp)
 
 **SVG画像**
 
-![Vectorized](./raijin-zu.svg)
+![Vectorized](./huujin-zu.svg)
 
 ## 使用方法
 
@@ -110,17 +110,16 @@ Options:
 ### トラブルシュート（よくある問題と対処）
 
 - パレット数が多すぎる（256色超）
-	- 症状: 変換が中止される、またはエラーが表示される。
-	- 対処: 画像を減色してパレットを256色以下にしてください（画像編集ソフトでの減色または `pngquant` 等のツールを利用）。
+    - 症状: 変換が中止される、またはエラーが表示される。
+    - 対処: 画像を減色してパレットを256色以下にしてください（画像編集ソフトでの減色または `pngquant` 等のツールを利用）。
 
 - フルカラー画像を与えた場合
-	- 症状: 入力フォーマット非対応として無視されるか、期待した色分解が行われない。
-	- 対処: 事前にパレット（インデックスカラー）へ変換してください。
+    - 症状: 入力フォーマット非対応として無視されるか、期待した色分解が行われない。
+    - 対処: 事前にパレット（インデックスカラー）へ変換してください。
 
 - `-o` を使ったが複数ファイルを指定した
-	- 症状: `-o` は単一入力時のみ有効です。
-	- 対処: 複数ファイルをまとめて処理する場合は `-o` を使わず、各入力ごとに個別の出力を生成してください。
-
+    - 症状: `-o` は単一入力時のみ有効です。
+    - 対処: 複数ファイルをまとめて処理する場合は `-o` を使わず、各入力ごとに個別の出力を生成してください。
 
 ## ビルド方法
 
@@ -167,21 +166,27 @@ Linux用 `vectrace-gui` は `fyne.io/fyne` で記述されています。
 こちらのビルドには `CGO` および `GCC` 等が必要になり、ビルド環境を整える必要があります。GUIをビルドする際は、使用するGoのバージョンや`CGO`設定、ネイティブライブラリが整っていることを確認してください。詳細は`go.mod`を参照してください。
 
 Ubuntu / Debian 系の場合:
+
 ```bash
 sudo apt update
 sudo apt install build-essential libgl1-mesa-dev libx11-dev xorg-dev
 ```
+
 Fedora / RHEL の場合:
+
 ```bash
 sudo dnf groupinstall "Development Tools"
 sudo dnf install libGL-devel libX11-devel
 ```
+
 Arch Linux の場合:
+
 ```bash
 sudo pacman -S base-devel libx11 libxcursor libxrandr libxinerama libxi libxxf86vm alsa-lib pkgconf
 ```
 
 アプリケーションの構築
+
 ```bash
 export CGO_ENABLED=1
 export GOOS=linux
@@ -189,10 +194,10 @@ export GOARCH=amd64
 go build -trimpath -ldflags="-s -w" -o vectrace-gui_linux ./vectrace-gui/linux/.
 ```
 
-
 また、`fyne.io/fyne` はクロスコンパイルをサポートしていますので `MinGW-W64` 等の使用によりWindows版も構築可能です。
 
 例：windows上で `MinGW-W64` を使用
+
 ```
 set CGO_ENABLED=1
 set GOOS=windows
@@ -201,7 +206,6 @@ set CXX=x86_64-w64-mingw32-g++
 set CC=x86_64-w64-mingw32-gcc
 go build -trimpath -ldflags="-H windowsgui -s -w" -o vectrace-gui_win.exe ./vectrace-gui/linux/
 ```
-
 
 ## ライセンスと商標について
 
