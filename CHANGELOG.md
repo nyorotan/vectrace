@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-Added and updated README.md
-Added vectrace-gui_linux
-Adopted and added [readme-viewer](https://github.com/nyorotan/readme-viewer) as the Markdown viewer (Assets only)
+- Added and updated README.md
+- Added vectrace-gui_linux
+- Adopted and added [readme-viewer](https://github.com/nyorotan/readme-viewer) as the Markdown viewer (Assets only)
 
 ## [1.0.0] - 2026-06-17
 

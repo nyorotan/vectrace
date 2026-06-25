@@ -1,11 +1,15 @@
 package vectrace
 
 import (
+	_ "embed"
 	"errors"
 	"image"
 )
 
 const Version = "1.16"
+
+//go:embed LICENSE
+var FullLicense string
 
 var (
 	ErrIncomplete = errors.New("tracing incomplete")

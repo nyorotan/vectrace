@@ -59,7 +59,7 @@ import (
 	"vectrace"
 )
 
-var version = "v1.0.0    is based on Potrace  version 1.16"
+var version = "v1.0.1    is based on Potrace  version 1.16"
 
 var Root = &cobra.Command{
 	Use:   "vectrace [flags] [filename...]",
